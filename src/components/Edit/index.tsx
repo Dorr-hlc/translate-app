@@ -1,15 +1,13 @@
-
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import "grapesjs/dist/css/grapes.min.css";
 import grapesjs, { Editor } from "grapesjs";
 import plugin from "grapesjs-preset-webpage";
 import zh from "grapesjs/locale/zh";
 
-
 const EmailEditor = () => {
   const editorRef = useRef<any>(null);
-  const [html, setHtml] = useState("1");
-  const [open, setOpen] = useState(false);
+  // const [html, setHtml] = useState("1");
+  // const [open, setOpen] = useState(false);
   const resetEditor = (editor: Editor) => {
     editor.on("load", function () {
       const panels = editor.Panels;
@@ -32,68 +30,66 @@ const EmailEditor = () => {
       });
       // 绑定上传功能
       editor.Commands.add("open-upload-dialog", () => {
-        setOpen(true);
+        alert("上传功能未实现");
       });
     });
   };
   useEffect(() => {
-    if (html) {
-      const editor = grapesjs.init({
-        container: "#gjs",
-        fromElement: true,
-        height: "100vh",
-        width: "auto",
-        storageManager: { autoload: false },
-        plugins: [plugin],
-        pluginsOpts: {
-          [plugin as any]: {
-            modalImportTitle: "导入",
-            modalImportButton: "导入",
-            textCleanCanvas: "清除所有内容？",
-          },
+    const editor = grapesjs.init({
+      container: "#gjs",
+      fromElement: true,
+      height: "100vh",
+      width: "auto",
+      storageManager: { autoload: false },
+      plugins: [plugin],
+      pluginsOpts: {
+        [plugin as any]: {
+          modalImportTitle: "导入",
+          modalImportButton: "导入",
+          textCleanCanvas: "清除所有内容？",
         },
-        cleaner: {
-          removeTags: [], // 禁止删除 html、head、body 标签
-          // 保留 script 标签
-          keepScripts: true,
+      },
+      cleaner: {
+        removeTags: [], // 禁止删除 html、head、body 标签
+        // 保留 script 标签
+        keepScripts: true,
+      },
+      i18n: {
+        locale: "zh",
+        messages: {
+          zh,
         },
-        i18n: {
-          locale: "zh",
-          messages: {
-            zh,
-          },
-        },
-      });
-      resetEditor(editor);
-      editor.addComponents(`<!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>Document</title>
-          <script src="/assets/lib/amt.min.js"></script>
-          <link rel="stylesheet" href="/assets/aa.css" />
-        </head>
-        <body>
-          <h1>Hello world</h1>
-          <img src="/assets/aa.png" alt />
-          <img src="https://wwww.baidu.com/assets/images/pp.png" alt />
-          <script src="/ass.js"></script>
-        </body>
-      </html>
-      `);
-      editorRef.current = editor;
-      console.log(editor.getHtml());
-    }
+      },
+    });
+    resetEditor(editor);
+    editor.addComponents(`<!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+        <script src="/assets/lib/amt.min.js"></script>
+        <link rel="stylesheet" href="/assets/aa.css" />
+      </head>
+      <body>
+        <h1>Hello world</h1>
+        <img src="/assets/aa.png" alt />
+        <img src="https://wwww.baidu.com/assets/images/pp.png" alt />
+        <script src="/ass.js"></script>
+      </body>
+    </html>
+    `);
+    editorRef.current = editor;
+    console.log(editor.getHtml());
 
     return () => {
       if (editorRef.current) {
         editorRef.current.destroy();
       }
     };
-  }, [html]);
+  }, []);
 
-  return <div>{html && <div id="gjs"></div>}</div>;
+  return <div>{<div id="gjs"></div>}</div>;
 };
 
 export default EmailEditor;
