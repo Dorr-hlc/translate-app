@@ -6,7 +6,7 @@ import { useEffect } from "react";
 const Edit = () => {
   useEffect(() => {
     const fetchMovies = async () => {
-      const response = await fetch("/api/html");
+      const response = await fetch("/api/aaa");
       const data = await response.json();
       console.log(data);
     };
