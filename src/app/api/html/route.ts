@@ -1,9 +1,4 @@
-// app/api/users/route.js
-
-
-
-
-
+const cheerio = require('cheerio');
 export async function GET(req: Request) {
     try {
         // 查询 users 集合中的所有用户数据
@@ -25,18 +20,71 @@ export async function GET(req: Request) {
 }
 export async function POST(req: Request) {
     try {
+        // 获取请求的 body
+        const body = await req.json();
+        const { htmlStr } = body
+        // 使用 cheerio 加载 HTML
+        const $ = cheerio.load(htmlStr);
 
-        console.log(req);
+        // 设置资源前缀
+        const resourcePrefix = "http://192.168.0.92:5502";
 
 
-        return new Response(JSON.stringify(req), {
+        $("link[href]").each((i: any, el: any) => {
+            const currentHref = $(el).attr("href");
+            if (!currentHref.startsWith("http")) {
+                $(el).attr("href", resourcePrefix + currentHref);
+            }
+        });
+
+    
+        $("img[src]").each((i: any, el: any) => {
+            const currentSrc = $(el).attr("src");
+            if (!currentSrc.startsWith("http")) {
+                $(el).attr("src", resourcePrefix + currentSrc);
+            }
+        });
+
+        const lang = $('html').attr('lang')
+        const title = $('title').text();
+        const description = $('meta[name="description"]').attr('content');
+        const keywords = $('meta[name="keywords"]').attr('content');
+        const canonical = $('link[rel="canonical"]').attr('href');
+        const headStr = $("head").html()
+        const bodyStr = $('body').html()
+        const scripts = $('body').find('script');
+        const scriptStr: string[] = []
+        const cssFiles: string[] = [];
+        $("head link[rel='stylesheet']").each((i: any, el: any) => {
+            cssFiles.push($(el).attr("href"));
+        });
+        scripts.each((i: any, el: any) => {
+            const scriptContent = $.html(el);
+            scriptStr.push(scriptContent)
+        });
+        const htmlStrObj = {
+            headContnent: {
+                lang,
+                title,
+                description,
+                keywords,
+                canonical
+            },
+            headStr: headStr,
+            bodyStr: bodyStr,
+            cssFiles: cssFiles,
+            scriptStr: scriptStr
+        }
+
+        // 返回响应
+        return new Response(JSON.stringify(htmlStrObj), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });
     } catch (error) {
         console.error(error);
         return new Response(
-            JSON.stringify({ error: 'Error fetching users', info: error }),
+            JSON.stringify({ error: 'Error processing request', info: error }),
             { status: 500 }
         );
     } finally {

@@ -6,8 +6,9 @@ import zh from "grapesjs/locale/zh";
 
 const EmailEditor = () => {
   const editorRef = useRef<any>(null);
-  // const [html, setHtml] = useState("1");
-  // const [open, setOpen] = useState(false);
+  const html: string | null = window.localStorage.getItem("html");
+  const parsedHtml = html ? JSON.parse(html) : null;
+  const { cssFiles, bodyStr } = parsedHtml;
   const resetEditor = (editor: Editor) => {
     editor.on("load", function () {
       const panels = editor.Panels;
@@ -32,6 +33,17 @@ const EmailEditor = () => {
       editor.Commands.add("open-upload-dialog", () => {
         alert("上传功能未实现");
       });
+      const canvasHead = editor.Canvas.getDocument().head;
+
+      // 创建并添加外部 CSS 的 <link> 标签
+      const cssLinks = cssFiles;
+
+      cssLinks.forEach((href:string) => {
+        const linkEl = document.createElement("link");
+        linkEl.rel = "stylesheet";
+        linkEl.href = href;
+        canvasHead.appendChild(linkEl);
+      });
     });
   };
   useEffect(() => {
@@ -49,6 +61,7 @@ const EmailEditor = () => {
           textCleanCanvas: "清除所有内容？",
         },
       },
+
       cleaner: {
         removeTags: [], // 禁止删除 html、head、body 标签
         // 保留 script 标签
@@ -62,25 +75,9 @@ const EmailEditor = () => {
       },
     });
     resetEditor(editor);
-    editor.addComponents(`<!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Document</title>
-        <script src="/assets/lib/amt.min.js"></script>
-        <link rel="stylesheet" href="/assets/aa.css" />
-      </head>
-      <body>
-        <h1>Hello world</h1>
-        <img src="/assets/aa.png" alt />
-        <img src="https://wwww.baidu.com/assets/images/pp.png" alt />
-        <script src="/ass.js"></script>
-      </body>
-    </html>
-    `);
+
+    editor.addComponents(bodyStr);
     editorRef.current = editor;
-    console.log(editor.getHtml());
 
     return () => {
       if (editorRef.current) {

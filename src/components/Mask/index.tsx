@@ -1,9 +1,12 @@
+import React from "react";
 import styles from "./index.module.css";
-const Mask = () => {
-  return (
-    <>
-      <div className={styles.mask}></div>
-    </>
-  );
+
+interface MaskProps {
+  children: React.ReactNode;
+}
+
+const Mask: React.FC<MaskProps> = ({ children }) => {
+  return <div className={styles.mask}>{children}</div>;
 };
+
 export default Mask;

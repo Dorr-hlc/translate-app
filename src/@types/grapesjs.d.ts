@@ -12,8 +12,12 @@ declare module 'grapesjs' {
         // 其他方法和属性声明
         init: (options: any) => Editor;
         Commands: any;
+        CssComposer: any,
+        Canvas: any,
         addComponents: (components: any) => void;
+        setStyle: (css: string) => void;
         getHtml: () => string;
+        getCss: () => string;
         destroy: () => void;
     };
 
