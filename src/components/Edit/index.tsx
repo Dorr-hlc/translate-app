@@ -1,14 +1,22 @@
+
 import { useEffect, useRef } from "react";
 import "grapesjs/dist/css/grapes.min.css";
 import grapesjs, { Editor } from "grapesjs";
 import plugin from "grapesjs-preset-webpage";
 import zh from "grapesjs/locale/zh";
-
-const EmailEditor = () => {
+interface EmailEditorProps {
+  cssFiles: string[];
+  bodyStr: string;
+  getCurrentHtml: (bodyHtml: string) => void;
+  download: boolean;
+}
+const EmailEditor = ({
+  cssFiles,
+  bodyStr,
+  getCurrentHtml,
+  download,
+}: EmailEditorProps) => {
   const editorRef = useRef<any>(null);
-  const html: string | null = window.localStorage.getItem("html");
-  const parsedHtml = html ? JSON.parse(html) : null;
-  const { cssFiles, bodyStr } = parsedHtml;
   const resetEditor = (editor: Editor) => {
     editor.on("load", function () {
       const panels = editor.Panels;
@@ -22,23 +30,20 @@ const EmailEditor = () => {
       `
         );
       }
-      // 新增上传文件按钮
+
       panels.addButton("options", {
         id: "upload-button",
         className: "fa fa-upload", // 你可以选择你想要的图标类，这里用的是 Font Awesome 图标
         label: ``, // 自定义图标
         command: "open-upload-dialog", // 按钮点击后的命令
       });
-      // 绑定上传功能
+
       editor.Commands.add("open-upload-dialog", () => {
         alert("上传功能未实现");
       });
       const canvasHead = editor.Canvas.getDocument().head;
-
-      // 创建并添加外部 CSS 的 <link> 标签
       const cssLinks = cssFiles;
-
-      cssLinks.forEach((href:string) => {
+      cssLinks.forEach((href: string) => {
         const linkEl = document.createElement("link");
         linkEl.rel = "stylesheet";
         linkEl.href = href;
@@ -46,6 +51,11 @@ const EmailEditor = () => {
       });
     });
   };
+  const updateChange = (editor: Editor) => {
+    const updatedHtml = editor.getHtml();
+    getCurrentHtml(updatedHtml);
+  };
+
   useEffect(() => {
     const editor = grapesjs.init({
       container: "#gjs",
@@ -75,7 +85,6 @@ const EmailEditor = () => {
       },
     });
     resetEditor(editor);
-
     editor.addComponents(bodyStr);
     editorRef.current = editor;
 
@@ -86,7 +95,15 @@ const EmailEditor = () => {
     };
   }, []);
 
-  return <div>{<div id="gjs"></div>}</div>;
+  useEffect(() => {
+    console.log(download);
+    
+    if (download) {
+      updateChange(editorRef.current);
+    }
+  }, [download]);
+
+  return <div id="gjs"></div>;
 };
 
 export default EmailEditor;

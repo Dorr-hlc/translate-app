@@ -15,7 +15,7 @@ const HoverEffect: React.FC = () => {
     const reader = new FileReader();
     reader.onload = function (e: any) {
       const contents = e.target.result;
-      fetch("/api/html", {
+      fetch("/api/format", {
         body: JSON.stringify({ htmlStr: contents }),
         method: "POST",
         headers: {
