@@ -20,15 +20,10 @@ export async function GET(req: Request) {
 }
 export async function POST(req: Request) {
     try {
-        // 获取请求的 body
         const body = await req.json();
         const { htmlStr } = body
-        // 使用 cheerio 加载 HTML
         const $ = cheerio.load(htmlStr);
-
-        // 设置资源前缀
         const resourcePrefix = "http://192.168.0.92:5502";
-
 
         $("link[href]").each((i: any, el: any) => {
             const currentHref = $(el).attr("href");
@@ -76,7 +71,7 @@ export async function POST(req: Request) {
             scriptStr: scriptStr
         }
 
-        // 返回响应
+
         return new Response(JSON.stringify(htmlStrObj), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },

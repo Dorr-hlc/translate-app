@@ -1,13 +1,15 @@
 "use client";
-import { useEffect, useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Mask from "@/components/Mask";
 import Loader from "@/components/Loading";
 import "./index.css";
 
 const HoverEffect: React.FC = () => {
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
   const handleFileUpload = (e: any) => {
+    setLoading(true);
     const file = e.target.files[0];
     if (!file) {
       return;
@@ -24,7 +26,8 @@ const HoverEffect: React.FC = () => {
       })
         .then((res) => res.text())
         .then((res) => {
-          console.log(res);
+          window.localStorage.removeItem("gjsProject");
+          window.localStorage.removeItem("html");
           window.localStorage.setItem("html", res);
           router.push("/edit");
         })
@@ -33,6 +36,9 @@ const HoverEffect: React.FC = () => {
         });
     };
     reader.readAsText(file);
+  };
+  const handleOPenEmail = () => {
+    alert("邮件翻译功能正在开发中");
   };
 
   return (
@@ -51,7 +57,8 @@ const HoverEffect: React.FC = () => {
               公共页面翻译
             </label>
             <label
-              htmlFor="normal"
+              htmlFor="email"
+              onClick={handleOPenEmail}
               className="btn btn-call-to-action btn-animate"
             >
               邮件页面翻译
@@ -66,7 +73,7 @@ const HoverEffect: React.FC = () => {
           </div>
         </div>
       </div>
-      {/* <Mask children={<Loader />} /> */}
+      {loading && <Mask children={<Loader />} />}
     </>
   );
 };

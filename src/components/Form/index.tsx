@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import styles from "./index.module.css";
-
+import { isValidURL } from "@/utils/utils";
 interface HeadContent {
   title: string;
   description: string;
@@ -35,8 +35,12 @@ const Form = ({ headContent, handleClose, handleSubmit }: FormProps) => {
   };
 
   const onFormSubmit = (event: React.FormEvent) => {
-    event.preventDefault(); // 阻止默认提交行为
-    handleSubmit?.(formData); // 触发提交逻辑
+    event.preventDefault();
+    if (!isValidURL(formData.canonical)) {
+      alert("请输入正确的canonical链接");
+      return;
+    }
+    handleSubmit?.(formData);
   };
 
   return (
@@ -44,8 +48,6 @@ const Form = ({ headContent, handleClose, handleSubmit }: FormProps) => {
       <div className={styles.title_container}>
         <p className={styles.title}>翻译TDK相关</p>
       </div>
-
-      {/** 通用输入框组件 */}
       {[
         {
           id: "lang_field",
@@ -76,8 +78,6 @@ const Form = ({ headContent, handleClose, handleSubmit }: FormProps) => {
           />
         </div>
       ))}
-
-      {/** 通用文本域组件 */}
       {[
         {
           id: "title_field",

@@ -1,13 +1,15 @@
+import fs from 'fs';
+import path from 'path';
 const cheerio = require('cheerio');
+import { getDomain, directoryPath } from "@/utils/utils"
 
 export async function POST(req: Request) {
     try {
-        // 获取请求的 body
         const reqBody = await req.json();
         const { head, headStr, body, scriptStr } = reqBody
         const defaultHtml = `<!DOCTYPE html><html><head></head><body></body></html>
         `
-        // 使用 cheerio 加载 HTML
+
         const $ = cheerio.load(defaultHtml);
         const { title, lang, description, keywords, canonical } = head
         $("head").append(headStr)
@@ -18,15 +20,20 @@ export async function POST(req: Request) {
         $('meta[name="description"]').attr('content', description);
         $('meta[name="keywords"]').attr('content', keywords);
         $('link[rel="canonical"]').attr('href', canonical);
+
+
         let html = ''
         let fileName: string = ''
+        let checkUrl: string = ''
         if (canonical) {
             const url = new URL(canonical);
             const pathname = url.pathname;
             const pathParts = pathname.split('/');
             if (pathParts.length > 0) {
-                fileName = pathParts.pop() || 'default.html';
+                fileName = pathParts.pop() || 'index.html';
+                checkUrl = "http://192.168.0.92:5502" + pathname;
             }
+
         } else {
             console.log('No canonical link found.');
         }
@@ -41,7 +48,22 @@ export async function POST(req: Request) {
         });
 
         html = $.html();
-        return new Response(JSON.stringify({ fileName, html }), {
+
+
+        const domain = getDomain(canonical);
+        if (domain) {
+            const filePathName = directoryPath(canonical, domain);
+            if (path.isAbsolute(filePathName)) {
+                const filePath = path.join(filePathName, fileName);
+                const dir = path.dirname(filePath);
+                if (!fs.existsSync(dir)) {
+                    fs.mkdirSync(dir, { recursive: true });
+                }
+                fs.writeFileSync(filePath, html);
+                console.log(`HTML 文件已保存到 ${filePath}`);
+            }
+        }
+        return new Response(JSON.stringify({ fileName, checkUrl, html }), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },
         });

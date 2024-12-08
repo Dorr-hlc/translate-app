@@ -14,8 +14,8 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "translate app",
-  description: "translate app",
+  title: "Translate App",
+  description: "Translate App",
 };
 
 export default function RootLayout({

@@ -1,34 +1,32 @@
-
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "grapesjs/dist/css/grapes.min.css";
 import grapesjs, { Editor } from "grapesjs";
 import plugin from "grapesjs-preset-webpage";
 import zh from "grapesjs/locale/zh";
+import { checkAndAppendCss } from "@/utils/utils";
+import { useRouter } from "next/navigation";
 interface EmailEditorProps {
   cssFiles: string[];
   bodyStr: string;
   getCurrentHtml: (bodyHtml: string) => void;
-  download: boolean;
+  save: boolean;
+  openErrorPop: (isResource: boolean) => void;
 }
 const EmailEditor = ({
   cssFiles,
   bodyStr,
   getCurrentHtml,
-  download,
+  save,
+  openErrorPop,
 }: EmailEditorProps) => {
   const editorRef = useRef<any>(null);
+  const router = useRouter();
   const resetEditor = (editor: Editor) => {
     editor.on("load", function () {
       const panels = editor.Panels;
       const saveButton = panels.getButton("options", "gjs-open-import-webpage");
       if (saveButton) {
-        saveButton.set(
-          "label",
-          `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style="display: block; max-width:22px;transform: rotate(180deg);" >
-        <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
-      </svg>
-      `
-        );
+        saveButton.set("className", "gjs-up-btn");
       }
 
       panels.addButton("options", {
@@ -39,11 +37,13 @@ const EmailEditor = ({
       });
 
       editor.Commands.add("open-upload-dialog", () => {
-        alert("上传功能未实现");
+        router.push("/");
       });
       const canvasHead = editor.Canvas.getDocument().head;
       const cssLinks = cssFiles;
       cssLinks.forEach((href: string) => {
+        console.log(href);
+
         const linkEl = document.createElement("link");
         linkEl.rel = "stylesheet";
         linkEl.href = href;
@@ -62,7 +62,12 @@ const EmailEditor = ({
       fromElement: true,
       height: "100vh",
       width: "auto",
-      storageManager: { autoload: false },
+      storageManager: {
+        type: "local",
+        autosave: true,
+        autoload: true,
+        stepsBeforeSave: 1,
+      },
       plugins: [plugin],
       pluginsOpts: {
         [plugin as any]: {
@@ -72,11 +77,6 @@ const EmailEditor = ({
         },
       },
 
-      cleaner: {
-        removeTags: [], // 禁止删除 html、head、body 标签
-        // 保留 script 标签
-        keepScripts: true,
-      },
       i18n: {
         locale: "zh",
         messages: {
@@ -85,6 +85,7 @@ const EmailEditor = ({
       },
     });
     resetEditor(editor);
+
     editor.addComponents(bodyStr);
     editorRef.current = editor;
 
@@ -94,14 +95,23 @@ const EmailEditor = ({
       }
     };
   }, []);
-
   useEffect(() => {
-    console.log(download);
-    
-    if (download) {
+    const checkCssFiles = async () => {
+      const isValid = await checkAndAppendCss(cssFiles);
+      if (isValid) {
+        openErrorPop(false);
+      } else {
+        openErrorPop(true);
+      }
+    };
+
+    checkCssFiles();
+  }, [cssFiles]);
+  useEffect(() => {
+    if (save) {
       updateChange(editorRef.current);
     }
-  }, [download]);
+  }, [save]);
 
   return <div id="gjs"></div>;
 };
