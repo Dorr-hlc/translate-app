@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css?family=Lato');
+@import url("https://fonts.googleapis.com/css?family=Lato");
 
 .home {
   height: 100vh;
@@ -7,18 +7,18 @@
       rgba(213, 51, 105, 0.8),
       rgba(203, 173, 109, 0.8)
     ),
-    url(https://images.unsplash.com/photo-1498248193836-88f8c8d70a3f?auto=format&fit=crop&w=1191&q=60&ixid=dW5zcGxhc2guY29tOzs7Ozs%3D);
+    url(/back.avif);
   background-size: cover;
   background-position: center;
   position: relative;
+  display: flex;
+
+  justify-content: center;
+  text-align: center;
+  padding-top: 16%;
 }
 
 .text-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  text-align: center;
-  transform: translate(-50%, -50%);
   color: #fff;
 }
 
@@ -37,7 +37,7 @@
   font-weight: 700;
 }
 
-.btn{
+.btn {
   text-transform: uppercase;
   text-decoration: none;
   display: inline-block;
@@ -45,6 +45,7 @@
   padding: 15px 40px;
   margin-top: 40px;
   cursor: pointer;
+  margin-top: 120px;
 }
 
 .btn:hover {

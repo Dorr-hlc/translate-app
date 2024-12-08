@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 const cheerio = require('cheerio');
-import { getDomain, directoryPath } from "@/utils/utils"
+import { getDomain,getDomainName, directoryPath } from "@/utils/utils"
 
 export async function POST(req: Request) {
     try {
@@ -50,15 +50,21 @@ export async function POST(req: Request) {
         html = $.html();
 
 
-        const domain = getDomain(canonical);
+        const domain = getDomainName(canonical);
+        console.log(domain,'222');
+        
         if (domain) {
             const filePathName = directoryPath(canonical, domain);
+            console.log(filePathName);
+            
             if (path.isAbsolute(filePathName)) {
                 const filePath = path.join(filePathName, fileName);
                 const dir = path.dirname(filePath);
                 if (!fs.existsSync(dir)) {
                     fs.mkdirSync(dir, { recursive: true });
                 }
+                console.log(filePath);
+                
                 fs.writeFileSync(filePath, html);
                 console.log(`HTML 文件已保存到 ${filePath}`);
             }

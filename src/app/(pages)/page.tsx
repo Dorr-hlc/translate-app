@@ -49,6 +49,7 @@ const HoverEffect: React.FC = () => {
             <span className="heading-primary-top">Adventurous</span>
             <span className="heading-primary-bottom">点击下方按钮翻译</span>
           </h1>
+
           <div className="link-box">
             <label
               htmlFor="normal"

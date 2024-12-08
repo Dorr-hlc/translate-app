@@ -25,10 +25,14 @@ export const getDomain = (url: string) => {
     const matches = url.match(regex);
     return matches && matches[2] ? matches[2] : null;
 }
-
 export const getDomainName = (url: string) => {
+    const domain = getDomain(url);
+    if (domain === null) {
+        throw new Error("Invalid URL: No domain found");
+    }
+    url = domain;
     switch (url) {
-        case "https://www.fonetool.com":
+        case "www.fonetool.com":
             return "ft";
         default:
             return "ub";
@@ -40,7 +44,7 @@ export const firstLevelDirectory = (name: string) => {
     const baseDirectory = "E:\\aomei";
     switch (name) {
         case "ft":
-            return baseDirectory;
+            return "E:\\aomei\\FT";
         default:
             return baseDirectory;
     }
@@ -53,10 +57,13 @@ export const directoryPath = (str: string, domain: string) => {
 
 
     const directoryPath = filePath.substring(0, filePath.lastIndexOf('/'));
+    console.log(directoryPath, 111);
+
     const windowsPath = directoryPath.replace(/\//g, '\\');
 
 
     const baseDirectory = firstLevelDirectory(domain);
+
 
     return path.join(baseDirectory, windowsPath);
 }
