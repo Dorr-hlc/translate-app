@@ -39,18 +39,67 @@ const EmailEditor = ({
       editor.Commands.add("open-upload-dialog", () => {
         router.push("/");
       });
-      const canvasHead = editor.Canvas.getDocument().head;
-      const cssLinks = cssFiles;
-      cssLinks.forEach((href: string) => {
-        console.log(href);
 
+      const canvasHead = editor.Canvas.getDocument().head;
+      const canvasBody = editor.Canvas.getDocument().body;
+      const cssLinks = cssFiles; // 外部 CSS 文件数组
+      canvasBody.appendChild(canvasHead);
+
+
+      // 确保所有外部 CSS 加载完成后再进行后续操作
+      // let loadCount = 0;`
+      const totalLinks = cssLinks.length;
+
+      // 用 Promise 来处理每个外部 CSS 文件加载完成后执行的操作
+      cssLinks.forEach((href: string) => {
         const linkEl = document.createElement("link");
         linkEl.rel = "stylesheet";
         linkEl.href = href;
+
+        // // 添加 load 事件监听器
+        // linkEl.onload = function () {
+        //   loadCount++;
+        //   // 如果所有的 CSS 文件都加载完成
+        //   if (loadCount === totalLinks) {
+        //     // 执行后续的操作
+        //     modifyElements(editor);
+        //   }
+        // };
+
+        // linkEl.onerror = function () {
+        //   console.error(`CSS 加载失败: ${href}`);
+        // };
+
         canvasHead.appendChild(linkEl);
       });
+
+      // 如果没有外部 CSS 文件，则直接执行
+      if (totalLinks === 0) {
+        modifyElements(editor);
+      }
     });
   };
+
+  // 修改页面中元素的 display 样式
+  function modifyElements(editor: Editor) {
+    const canvasBody = editor.Canvas.getDocument().body;
+    const elements = canvasBody.querySelectorAll("*");
+
+    elements.forEach(function (el: any) {
+      if (
+        el.tagName.toLowerCase() !== "header" &&
+        el.tagName.toLowerCase() !== "footer" &&
+        el.tagName.toLowerCase() !== "style"
+      ) {
+        const displayStyle = window.getComputedStyle(el).display;
+        // 如果 display 样式是 none，修改为 block
+        if (displayStyle === "none") {
+          el.style.display = "block";
+        }
+      }
+    });
+  }
+
   const updateChange = (editor: Editor) => {
     const updatedHtml = editor.getHtml();
     getCurrentHtml(updatedHtml);
@@ -87,6 +136,27 @@ const EmailEditor = ({
     resetEditor(editor);
 
     editor.addComponents(bodyStr);
+
+    // editor.on("load", function () {
+    //   setTimeout(() => {
+    //     const canvasBody = editor.Canvas.getDocument().body;
+    //     const elements = canvasBody.querySelectorAll("*");
+
+    //     elements.forEach(function (el: any) {
+    //       if (
+    //         el.tagName.toLowerCase() !== "header" &&
+    //         el.tagName.toLowerCase() !== "footer"
+    //       ) {
+    //         const displayStyle = window.getComputedStyle(el).display;
+    //         // 如果 display 样式是 none，修改为 block
+    //         if (displayStyle === "none") {
+    //           el.style.display = "block";
+    //         }
+    //       }
+    //     });
+    //   }, 10000);
+    // });
+
     editorRef.current = editor;
 
     return () => {

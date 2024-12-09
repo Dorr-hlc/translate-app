@@ -1,4 +1,6 @@
 const cheerio = require('cheerio');
+import { getDomain, getDomainName, getCheckUrl, directoryPath, replaceGa, getGa4Code } from "@/utils/utils"
+
 export async function GET(req: Request) {
     try {
         // 查询 users 集合中的所有用户数据
@@ -23,33 +25,35 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { htmlStr } = body
         const $ = cheerio.load(htmlStr);
-        const resourcePrefix = "http://192.168.0.92:5502";
+        const lang = $('html').attr('lang')
+        const title = $('title').text();
+        const description = $('meta[name="description"]').attr('content');
+        const keywords = $('meta[name="keywords"]').attr('content');
+        const canonical = $('link[rel="canonical"]').attr('href');
+        const scripts = $('body').find('script');
 
+        const scriptStr: string[] = []
+        const cssFiles: string[] = [];
+        const domain = getDomainName(canonical);
+        const resourcePrefix = getCheckUrl(domain);
         $("link[href]").each((i: any, el: any) => {
             const currentHref = $(el).attr("href");
             if (!currentHref.startsWith("http")) {
                 $(el).attr("href", resourcePrefix + currentHref);
             }
         });
-
-    
         $("img[src]").each((i: any, el: any) => {
             const currentSrc = $(el).attr("src");
             if (!currentSrc.startsWith("http")) {
                 $(el).attr("src", resourcePrefix + currentSrc);
             }
         });
-
-        const lang = $('html').attr('lang')
-        const title = $('title').text();
-        const description = $('meta[name="description"]').attr('content');
-        const keywords = $('meta[name="keywords"]').attr('content');
-        const canonical = $('link[rel="canonical"]').attr('href');
-        const headStr = $("head").html()
-        const bodyStr = $('body').html()
-        const scripts = $('body').find('script');
-        const scriptStr: string[] = []
-        const cssFiles: string[] = [];
+        $("source[srcset]").each((i: any, el: any) => {
+            const currentSrc = $(el).attr("srcset");
+            if (!currentSrc.startsWith("http")) {
+                $(el).attr("srcset", resourcePrefix + currentSrc);
+            }
+        });
         $("head link[rel='stylesheet']").each((i: any, el: any) => {
             cssFiles.push($(el).attr("href"));
         });
@@ -57,13 +61,24 @@ export async function POST(req: Request) {
             const scriptContent = $.html(el);
             scriptStr.push(scriptContent)
         });
+        $('noscript').remove();
+
+        $('body *').not('header').not('footer').each(function (i: any, el: any) {
+            const $element = $(el);
+            if ($element.css('display') === 'none') {
+                $element.css('display', 'block');
+            }
+        });
+        const headStr = $("head").html()
+        const bodyStr = $('body').html()
         const htmlStrObj = {
             headContnent: {
                 lang,
                 title,
                 description,
                 keywords,
-                canonical
+                canonical,
+
             },
             headStr: headStr,
             bodyStr: bodyStr,

@@ -34,6 +34,24 @@ export const getDomainName = (url: string) => {
     switch (url) {
         case "www.fonetool.com":
             return "ft";
+        case "www.ubackup.com":
+            return "ub";
+        case "www.diskpart.com":
+            return "dp";
+        case "partition.aomei.jp":
+            return "pajp";
+        case "www.anyviewer.com":
+            return "av";
+        case "aomei.fr":
+            return "amfr";
+        case "aomei.de":
+            return "amde";
+        case "aomei.jp":
+            return "amjp";
+        case "www.aomeitech.com":
+            return "at";
+        case "www.myrecover.com":
+            return "mr";
         default:
             return "ub";
     }
@@ -41,12 +59,27 @@ export const getDomainName = (url: string) => {
 
 // 获取根目录路径
 export const firstLevelDirectory = (name: string) => {
-    const baseDirectory = "E:\\aomei";
     switch (name) {
-        case "ft":
-            return "E:\\aomei\\FT";
+        case "ub":
+            return "I:\\AOMEI\\UB\\v1.0";
+        case "dp":
+            return "I:\\AOMEI\\DP\\v1.0";
+        case "mr":
+            return "I:\AOMEI\\MR\\v1.0";
+        case "amde":
+            return "I:\\AOMEI\\AMDE\\v1.0";
+        case "amfr":
+            return "I:\\AOMEI\\AMFR\\v1.0";
+        case "amjp":
+            return "I:\\AOMEI\\AMJP\\v1.0";
+        case "at":
+            return "I:\\AOMEI\\AT\\v1.0";
+        case "av":
+            return "I:\\AOMEI\\AV\\v1.0";
+        case "pajp":
+            return "I:\\AOMEI\\PAJP\\v1.0";
         default:
-            return baseDirectory;
+            return "";
     }
 }
 
@@ -80,4 +113,78 @@ export const checkAndAppendCss = async (cssFiles: string[]): Promise<boolean> =>
         return false;
     }
     return true;
+};
+
+export const getCheckUrl = (domain: string) => {
+    switch (domain) {
+        case "ub":
+            return "http://192.168.0.92:1000"
+        case "dp":
+            return "http://192.168.0.92:1001"
+        case "pajp":
+            return "http://192.168.0.92:1002"
+        case "at":
+            return "http://192.168.0.92:1004"
+        case "amde":
+            return "http://192.168.0.92:1005"
+        case "amfr":
+            return "http://192.168.0.92:1006"
+        case "amjp":
+            return "http://192.168.0.92:1007"
+        case "av":
+            return "http://192.168.0.92:1008"
+        case "ft":
+            return "http://192.168.0.92:1009"
+        default:
+            return "http://192.168.0.92:1000"
+    }
+}
+export const getGa4Code = (domain: string) => {
+    switch (domain) {
+        case "ub":
+            return "GTM-MZWCC57"
+        case "dp":
+            return "GTM-MJTQD2B"
+        case "pajp":
+            return "GTM-NPMK9J8P"
+        case "at":
+            return "GTM-PGBVLN7"
+        case "amde":
+            return "GTM-KMZJWWJ"
+        case "amfr":
+            return "GTM-WZQFCSQ"
+        case "amjp":
+            return "GTM-KHPM9QP"
+        case "av":
+            return "GTM-PMPNGST"
+        case "ft":
+            return "GTM-K67JT4G"
+        default:
+            return "GTM-MZWCC57"
+    }
+}
+export const replaceGa = ($: any, path: string, lang: string) => {
+
+    lang = lang === "en" ? "" : "/" + lang;
+    const replaceAttr = (selector: string, isOnClick: boolean) => {
+        $(selector).each(function (i: any, element: any) {
+            const attrName = isOnClick ? 'onclick' : 'data-ga';
+            const attrValue = $(element).attr(attrName);
+            if (attrValue) {
+
+                const parts = attrValue.split(",");
+                if (parts && parts.length > 0) {
+                    const newPath = isOnClick ? `'${lang}/top-navi'` : `'${path}'`;
+                    parts[parts.length - 1] = newPath;
+                    $(element).attr(attrName, parts.join(","));
+                }
+            }
+        });
+    };
+    replaceAttr('header [data-ga]', false);
+    replaceAttr('footer [data-ga]', false);
+    replaceAttr('header [onclick]', true);
+    replaceAttr('footer [onclick]', true);
+    replaceAttr('[data-ga]', false);
+    replaceAttr('[onclick]', true);
 };

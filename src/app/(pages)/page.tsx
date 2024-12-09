@@ -43,6 +43,7 @@ const HoverEffect: React.FC = () => {
 
   return (
     <>
+
       <div className="home">
         <div className="text-box">
           <h1 className="heading-primary">
