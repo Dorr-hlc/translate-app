@@ -40,43 +40,7 @@ const EmailEditor = ({
         router.push("/");
       });
 
-      const canvasHead = editor.Canvas.getDocument().head;
-      const canvasBody = editor.Canvas.getDocument().body;
-      const cssLinks = cssFiles; // 外部 CSS 文件数组
-      canvasBody.appendChild(canvasHead);
-
-
-      // 确保所有外部 CSS 加载完成后再进行后续操作
-      // let loadCount = 0;`
-      const totalLinks = cssLinks.length;
-
-      // 用 Promise 来处理每个外部 CSS 文件加载完成后执行的操作
-      cssLinks.forEach((href: string) => {
-        const linkEl = document.createElement("link");
-        linkEl.rel = "stylesheet";
-        linkEl.href = href;
-
-        // // 添加 load 事件监听器
-        // linkEl.onload = function () {
-        //   loadCount++;
-        //   // 如果所有的 CSS 文件都加载完成
-        //   if (loadCount === totalLinks) {
-        //     // 执行后续的操作
-        //     modifyElements(editor);
-        //   }
-        // };
-
-        // linkEl.onerror = function () {
-        //   console.error(`CSS 加载失败: ${href}`);
-        // };
-
-        canvasHead.appendChild(linkEl);
-      });
-
-      // 如果没有外部 CSS 文件，则直接执行
-      if (totalLinks === 0) {
-        modifyElements(editor);
-      }
+      modifyElements(editor);
     });
   };
 
@@ -84,20 +48,9 @@ const EmailEditor = ({
   function modifyElements(editor: Editor) {
     const canvasBody = editor.Canvas.getDocument().body;
     const elements = canvasBody.querySelectorAll("*");
+    canvasBody.classList="isEdit"
 
-    elements.forEach(function (el: any) {
-      if (
-        el.tagName.toLowerCase() !== "header" &&
-        el.tagName.toLowerCase() !== "footer" &&
-        el.tagName.toLowerCase() !== "style"
-      ) {
-        const displayStyle = window.getComputedStyle(el).display;
-        // 如果 display 样式是 none，修改为 block
-        if (displayStyle === "none") {
-          el.style.display = "block";
-        }
-      }
-    });
+
   }
 
   const updateChange = (editor: Editor) => {
@@ -132,30 +85,43 @@ const EmailEditor = ({
           zh,
         },
       },
+      canvas: {
+        scripts: [
+          "http://192.168.0.92:1008/assets/js/base/jquery-2.1.4.min.js",
+          "http://192.168.0.92:1008/resource/js/main.js",
+          "http://192.168.0.92:1008/assets/js/base/slick.min.js",
+          "http://192.168.0.92:1008/resource/js/black-friday-2024.js",
+        ],
+        styles: cssFiles,
+      },
     });
+
     resetEditor(editor);
 
     editor.addComponents(bodyStr);
 
-    // editor.on("load", function () {
-    //   setTimeout(() => {
-    //     const canvasBody = editor.Canvas.getDocument().body;
-    //     const elements = canvasBody.querySelectorAll("*");
+    editor.on("load", function () {
+      setTimeout(() => {
+        const canvasBody = editor.Canvas.getDocument().body;
+        const elements = canvasBody.querySelectorAll("*");
 
-    //     elements.forEach(function (el: any) {
-    //       if (
-    //         el.tagName.toLowerCase() !== "header" &&
-    //         el.tagName.toLowerCase() !== "footer"
-    //       ) {
-    //         const displayStyle = window.getComputedStyle(el).display;
-    //         // 如果 display 样式是 none，修改为 block
-    //         if (displayStyle === "none") {
-    //           el.style.display = "block";
-    //         }
-    //       }
-    //     });
-    //   }, 10000);
-    // });
+        elements.forEach(function (el: any) {
+          if (
+            el.tagName.toLowerCase() !== "header" &&
+            el.tagName.toLowerCase() !== "footer" &&
+            el.tagName.toLowerCase() !== "style"
+          ) {
+            const displayStyle = window.getComputedStyle(el).display;
+            // 如果 display 样式是 none，修改为 block
+            if (displayStyle === "none") {
+              // el.style.display = "block";
+              // el.style.position = "unset";
+              // el.style.transform = "unset";
+            }
+          }
+        });
+      }, 10000);
+    });
 
     editorRef.current = editor;
 
@@ -165,18 +131,18 @@ const EmailEditor = ({
       }
     };
   }, []);
-  useEffect(() => {
-    const checkCssFiles = async () => {
-      const isValid = await checkAndAppendCss(cssFiles);
-      if (isValid) {
-        openErrorPop(false);
-      } else {
-        openErrorPop(true);
-      }
-    };
+  // useEffect(() => {
+  //   const checkCssFiles = async () => {
+  //     const isValid = await checkAndAppendCss(cssFiles);
+  //     if (isValid) {
+  //       openErrorPop(false);
+  //     } else {
+  //       openErrorPop(true);
+  //     }
+  //   };
 
-    checkCssFiles();
-  }, [cssFiles]);
+  //   checkCssFiles();
+  // }, [cssFiles]);
   useEffect(() => {
     if (save) {
       updateChange(editorRef.current);

@@ -6,7 +6,7 @@ declare module "grapesjs/locale/zh" {
 
 declare module 'grapesjs' {
     export type Editor = {
-        on(arg0: string, arg1: () => void): unknown;
+        on(event: string, callback: (event: any) => void): void;
         Panels: any;
         BlockManager: any;
         // 其他方法和属性声明
@@ -19,6 +19,8 @@ declare module 'grapesjs' {
         getHtml: () => string;
         getCss: () => string;
         destroy: () => void;
+        getSelected: () => any;
+        select: (component: any) => void;
     };
 
     const grapesjs: {
