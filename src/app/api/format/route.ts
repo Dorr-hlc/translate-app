@@ -1,25 +1,6 @@
 const cheerio = require('cheerio');
-import { getDomain, getDomainName, getCheckUrl, directoryPath, replaceGa, getGa4Code } from "@/utils/utils"
+import { getDomainName, getCheckUrl, convertParamsToData } from "@/utils/utils"
 
-export async function GET(req: Request) {
-    try {
-        // 查询 users 集合中的所有用户数据
-        const users = `测试接口111111111111111111111111111111111111`;
-
-        return new Response(JSON.stringify(users), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
-    } catch (error) {
-        console.error(error);
-        return new Response(
-            JSON.stringify({ error: 'Error fetching users', info: error }),
-            { status: 500 }
-        );
-    } finally {
-        console.log('end.....');
-    }
-}
 export async function POST(req: Request) {
     try {
         const body = await req.json();
@@ -31,44 +12,17 @@ export async function POST(req: Request) {
         const keywords = $('meta[name="keywords"]').attr('content');
         const canonical = $('link[rel="canonical"]').attr('href');
         const scripts = $('body').find('script');
-
+        const noScript = $('body').find('noscript').html() || '';
         const scriptStr: string[] = []
-        const cssFiles: string[] = [];
         const domain = getDomainName(canonical);
         const resourcePrefix = getCheckUrl(domain);
-        $("link[href]").each((i: any, el: any) => {
-            const currentHref = $(el).attr("href");
-            if (!currentHref.startsWith("http")) {
-                $(el).attr("href", resourcePrefix + currentHref);
-            }
-        });
-        $("img[src]").each((i: any, el: any) => {
-            const currentSrc = $(el).attr("src");
-            if (!currentSrc.startsWith("http")) {
-                $(el).attr("src", resourcePrefix + currentSrc);
-            }
-        });
-        $("source[srcset]").each((i: any, el: any) => {
-            const currentSrc = $(el).attr("srcset");
-            if (!currentSrc.startsWith("http")) {
-                $(el).attr("srcset", resourcePrefix + currentSrc);
-            }
-        });
-        $("head link[rel='stylesheet']").each((i: any, el: any) => {
-            cssFiles.push($(el).attr("href"));
-        });
+        const cssFiles = convertParamsToData($, resourcePrefix)
         scripts.each((i: any, el: any) => {
             const scriptContent = $.html(el);
             scriptStr.push(scriptContent)
         });
         $('noscript').remove();
 
-        $('body *').not('header').not('footer').each(function (i: any, el: any) {
-            const $element = $(el);
-            if ($element.css('display') === 'none') {
-                $element.css('display', 'block');
-            }
-        });
         const headStr = $("head").html()
         const bodyStr = $('body').html()
         const htmlStrObj = {
@@ -83,7 +37,8 @@ export async function POST(req: Request) {
             headStr: headStr,
             bodyStr: bodyStr,
             cssFiles: cssFiles,
-            scriptStr: scriptStr
+            scriptStr: scriptStr,
+            noScript: noScript
         }
 
 

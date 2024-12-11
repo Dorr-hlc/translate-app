@@ -48,7 +48,7 @@ const HoverEffect: React.FC = () => {
         <div className="text-box">
           <h1 className="heading-primary">
             <span className="heading-primary-top">Adventurous</span>
-            <span className="heading-primary-bottom">点击下方按钮翻译</span>
+            <span className="heading-primary-bottom">点击下方按钮上传HTML文件后开始翻译</span>
           </h1>
 
           <div className="link-box">
@@ -56,14 +56,14 @@ const HoverEffect: React.FC = () => {
               htmlFor="normal"
               className="btn btn-call-to-action btn-animate"
             >
-              公共页面翻译
+              上传公共页面
             </label>
             <label
               htmlFor="email"
               onClick={handleOPenEmail}
               className="btn btn-call-to-action btn-animate"
             >
-              邮件页面翻译
+              上传邮件页面
             </label>
             <input
               id="normal"

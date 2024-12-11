@@ -21,6 +21,7 @@ declare module 'grapesjs' {
         destroy: () => void;
         getSelected: () => any;
         select: (component: any) => void;
+        DomComponents: any;
     };
 
     const grapesjs: {

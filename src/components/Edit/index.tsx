@@ -12,6 +12,92 @@ interface EmailEditorProps {
   save: boolean;
   openErrorPop: (isResource: boolean) => void;
 }
+
+const extendLinkComponent = (domComponents: any) => {
+  domComponents.addType("link", {
+    extend: "link",
+    extendFn: ["isComponent"],
+    model: {
+      defaults: {
+        // 默认属性
+        attributes: {
+          href: "#",
+          target: "_self",
+          "data-avpro": "",
+        },
+
+        traits: [
+          {
+            type: "text",
+            label: "Href",
+            name: "href",
+          },
+          {
+            type: "select",
+            label: "Target",
+            name: "target",
+            options: [
+              { value: "_self", name: "Self" },
+              { value: "_blank", name: "Blank" },
+              { value: "_parent", name: "Parent" },
+              { value: "_top", name: "Top" },
+            ],
+          },
+          {
+            type: "text",
+            label: "AV产品编号",
+            name: "data-avpro",
+          },
+        ],
+      },
+    },
+  });
+};
+const extendImgComponent = (domComponents: any) => {
+  domComponents.addType("image", {
+    extend: "image",
+    extendFn: ["isComponent"],
+    model: {
+      defaults: {
+        attributes: {
+          alt: "",
+          width: "",
+          height: "",
+          loading: "auto",
+        },
+        traits: [
+          {
+            type: "text",
+            label: "Alt Text",
+            name: "alt",
+          },
+          {
+            type: "number",
+            label: "Width",
+            name: "width",
+          },
+          {
+            type: "number",
+            label: "Height",
+            name: "height",
+          },
+          {
+            type: "select",
+            label: "Loading",
+            name: "loading",
+            options: [
+              { value: "auto", name: "Auto" },
+              { value: "lazy", name: "Lazy" },
+              { value: "eager", name: "Eager" },
+            ],
+          },
+        ],
+      },
+    },
+  });
+};
+
+
 const EmailEditor = ({
   cssFiles,
   bodyStr,
@@ -47,10 +133,7 @@ const EmailEditor = ({
   // 修改页面中元素的 display 样式
   function modifyElements(editor: Editor) {
     const canvasBody = editor.Canvas.getDocument().body;
-    const elements = canvasBody.querySelectorAll("*");
-    canvasBody.classList="isEdit"
-
-
+    canvasBody.classList = "isEdit";
   }
 
   const updateChange = (editor: Editor) => {
@@ -64,6 +147,7 @@ const EmailEditor = ({
       fromElement: true,
       height: "100vh",
       width: "auto",
+      allowScripts: true,
       storageManager: {
         type: "local",
         autosave: true,
@@ -86,42 +170,16 @@ const EmailEditor = ({
         },
       },
       canvas: {
-        scripts: [
-          "http://192.168.0.92:1008/assets/js/base/jquery-2.1.4.min.js",
-          "http://192.168.0.92:1008/resource/js/main.js",
-          "http://192.168.0.92:1008/assets/js/base/slick.min.js",
-          "http://192.168.0.92:1008/resource/js/black-friday-2024.js",
-        ],
         styles: cssFiles,
       },
     });
 
+    const domComponents = editor.DomComponents;
+    extendLinkComponent(domComponents);
+    extendImgComponent(domComponents);
     resetEditor(editor);
 
     editor.addComponents(bodyStr);
-
-    editor.on("load", function () {
-      setTimeout(() => {
-        const canvasBody = editor.Canvas.getDocument().body;
-        const elements = canvasBody.querySelectorAll("*");
-
-        elements.forEach(function (el: any) {
-          if (
-            el.tagName.toLowerCase() !== "header" &&
-            el.tagName.toLowerCase() !== "footer" &&
-            el.tagName.toLowerCase() !== "style"
-          ) {
-            const displayStyle = window.getComputedStyle(el).display;
-            // 如果 display 样式是 none，修改为 block
-            if (displayStyle === "none") {
-              // el.style.display = "block";
-              // el.style.position = "unset";
-              // el.style.transform = "unset";
-            }
-          }
-        });
-      }, 10000);
-    });
 
     editorRef.current = editor;
 
@@ -131,18 +189,7 @@ const EmailEditor = ({
       }
     };
   }, []);
-  // useEffect(() => {
-  //   const checkCssFiles = async () => {
-  //     const isValid = await checkAndAppendCss(cssFiles);
-  //     if (isValid) {
-  //       openErrorPop(false);
-  //     } else {
-  //       openErrorPop(true);
-  //     }
-  //   };
 
-  //   checkCssFiles();
-  // }, [cssFiles]);
   useEffect(() => {
     if (save) {
       updateChange(editorRef.current);

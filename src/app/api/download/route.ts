@@ -1,32 +1,22 @@
 import fs from 'fs';
 import path from 'path';
 const cheerio = require('cheerio');
-import { getDomain, getDomainName, getCheckUrl, directoryPath, replaceGa, getGa4Code } from "@/utils/utils"
+import { getDomainName, getCheckUrl, directoryPath, convertDataGaToOnclick, replaceUrlWithPathname } from "@/utils/utils"
 
 export async function POST(req: Request) {
     try {
         const reqBody = await req.json();
-        const { head, headStr, body, scriptStr } = reqBody
-        const defaultHtml = `<!DOCTYPE html><html><head></head><body></body></html>
+        const { head, headStr, body, scriptStr, noScript } = reqBody
+        const defaultHtml = `<!DOCTYPE html><html><head></head><body>
+       <noscript>
+      </noscript></body></html>
         `
-
         const $ = cheerio.load(defaultHtml);
         const { title, lang, description, keywords, canonical } = head
-        const noscriptCode = `
-  <noscript>
-    <iframe
-      src="https://www.googletagmanager.com/ns.html?id=GTM-MZWCC57"
-      height="0"
-      width="0"
-      style="display: none; visibility: hidden"
-    ></iframe>
-  </noscript>
-`;
-
         $("head").append(headStr)
-        $("body").append(noscriptCode)
+        $("noscript").html(noScript); // 直接插入测试内容
         $("body").append(body)
-        $("body").append(scriptStr)
+        // $("body").append(scriptStr)
         $('html').attr('lang', lang)
         $('title').text(title);
         $('meta[name="description"]').attr('content', description);
@@ -44,17 +34,11 @@ export async function POST(req: Request) {
                 fileName = pathParts.pop() || 'index.html';
                 checkUrl = getCheckUrl(domain) + pathname;
             }
+
             if (domain) {
                 const filePathName = directoryPath(canonical, domain);
-                replaceGa($, pathname, lang)
-                $('link,img, script').each((index: any, element: any) => {
-                    const attrName = $(element).is('link') ? 'href' : 'src';
-                    const url = $(element).attr(attrName);
-                    if (url && url.startsWith('http://192.168')) {
-                        const newPath = new URL(url).pathname;
-                        $(element).attr(attrName, newPath);
-                    }
-                });
+                convertDataGaToOnclick($, pathname)
+                replaceUrlWithPathname($)
                 html = $.html();
                 if (path.isAbsolute(filePathName)) {
                     const filePath = path.join(filePathName, fileName);

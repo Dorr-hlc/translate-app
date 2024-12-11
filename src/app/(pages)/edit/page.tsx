@@ -57,6 +57,7 @@ const Edit = () => {
       headStr: parsedHtml?.headStr,
       cssFiles: parsedHtml?.cssFiles,
       scriptStr: parsedHtml?.scriptStr,
+      noScript: parsedHtml?.noScript,
     };
 
     fetch("/api/download", {
@@ -89,7 +90,6 @@ const Edit = () => {
   };
 
   const openErrorPop = (params: boolean) => {
-
     setOpenError(params);
   };
 
