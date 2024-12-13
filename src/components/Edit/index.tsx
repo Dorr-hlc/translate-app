@@ -13,10 +13,10 @@ interface EmailEditorProps {
   openErrorPop: (isResource: boolean) => void;
 }
 
-const extendLinkComponent = (domComponents: any) => {
+const extendLinkComponent = (editor: any) => {
+  const domComponents = editor.DomComponents;
+
   domComponents.addType("link", {
-    extend: "link",
-    extendFn: ["isComponent"],
     model: {
       defaults: {
         // 默认属性
@@ -25,7 +25,7 @@ const extendLinkComponent = (domComponents: any) => {
           target: "_self",
           "data-avpro": "",
         },
-
+        // 自定义属性面板
         traits: [
           {
             type: "text",
@@ -45,7 +45,7 @@ const extendLinkComponent = (domComponents: any) => {
           },
           {
             type: "text",
-            label: "AV产品编号",
+            label: "Data AVPro",
             name: "data-avpro",
           },
         ],
@@ -53,50 +53,32 @@ const extendLinkComponent = (domComponents: any) => {
     },
   });
 };
-const extendImgComponent = (domComponents: any) => {
+
+const extendImgComponent = (editor: any) => {
+  const domComponents = editor.DomComponents;
   domComponents.addType("image", {
-    extend: "image",
-    extendFn: ["isComponent"],
     model: {
       defaults: {
-        attributes: {
-          alt: "",
-          width: "",
-          height: "",
-          loading: "auto",
-        },
         traits: [
           {
-            type: "text",
-            label: "Alt Text",
-            name: "alt",
-          },
-          {
             type: "number",
-            label: "Width",
+            label: "宽度",
             name: "width",
+            placeholder: "例如: 100px",
           },
           {
             type: "number",
-            label: "Height",
+            label: "高度",
             name: "height",
+            placeholder: "例如: 100px",
           },
-          {
-            type: "select",
-            label: "Loading",
-            name: "loading",
-            options: [
-              { value: "auto", name: "Auto" },
-              { value: "lazy", name: "Lazy" },
-              { value: "eager", name: "Eager" },
-            ],
-          },
+          ...editor.DomComponents.getType("image").model.prototype.defaults
+            .traits,
         ],
       },
     },
   });
 };
-
 
 const EmailEditor = ({
   cssFiles,
@@ -174,9 +156,8 @@ const EmailEditor = ({
       },
     });
 
-    const domComponents = editor.DomComponents;
-    extendLinkComponent(domComponents);
-    extendImgComponent(domComponents);
+    extendImgComponent(editor);
+    extendLinkComponent(editor)
     resetEditor(editor);
 
     editor.addComponents(bodyStr);

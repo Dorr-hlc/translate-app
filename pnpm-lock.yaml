@@ -15,8 +15,8 @@ importers:
         specifier: ^2.0.5
         version: 2.0.5
       grapesjs:
-        specifier: ^0.22.3
-        version: 0.22.3
+        specifier: ^0.22.4
+        version: 0.22.4
       grapesjs-preset-webpage:
         specifier: ^1.0.3
         version: 1.0.3
@@ -878,8 +878,8 @@ packages:
   grapesjs-preset-webpage@1.0.3:
     resolution: {integrity: sha512-C0VOKLAdhv0j1f81c6F2uk3JpJvxgXl5DeHUtDa5qGf/HZzaCmQxsvd8Re3Oh5Cah4uUCqoi9uB5FYx3hLND2w==}
 
-  grapesjs@0.22.3:
-    resolution: {integrity: sha512-9wLSjpidk+MOZEa9oQGzr0wqqkySpf4iAUkFK/9WcDdni6nLjmvhyrm9MnfzmcLY3zgX4OolFyygEJAKR2u0/w==}
+  grapesjs@0.22.4:
+    resolution: {integrity: sha512-4ea7T5FguyPC2fLytpSBgPXcSGreRKKisknXUbsgHBCzv4G11Z0oBJNM5jRucupBr2CRxt/3U2zixeEHEisfbw==}
 
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
@@ -2536,7 +2536,7 @@ snapshots:
 
   grapesjs-preset-webpage@1.0.3: {}
 
-  grapesjs@0.22.3:
+  grapesjs@0.22.4:
     dependencies:
       '@types/backbone': 1.4.15
       backbone: 1.4.1

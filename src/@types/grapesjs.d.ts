@@ -9,7 +9,6 @@ declare module 'grapesjs' {
         on(event: string, callback: (event: any) => void): void;
         Panels: any;
         BlockManager: any;
-        // 其他方法和属性声明
         init: (options: any) => Editor;
         Commands: any;
         CssComposer: any,
