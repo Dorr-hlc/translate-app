@@ -1,0 +1,54 @@
+.edit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+.file_upload_form {
+  width: fit-content;
+  height: fit-content;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.file_upload_label input {
+  display: none;
+}
+.file_upload_label svg {
+  height: 100px;
+  fill: #056dfa;
+  margin-bottom: 28px;
+}
+.file_upload_label {
+  cursor: pointer;
+  background-color: #ddd;
+  padding: 100px 200px;
+  border-radius: 40px;
+  border: 2px dashed rgb(82, 82, 82);
+  box-shadow: 0px 0px 200px -50px rgba(0, 0, 0, 0.719);
+}
+.file_upload_design {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+.browse_button {
+  font-size: 14px;
+  padding: 8px 20px;
+  border: transparent;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+  background: dodgerblue;
+  color: white;
+  border-radius: 4px;
+  margin-top: 16px;
+}
+.browse_button:hover {
+  background: rgb(2, 0, 36);
+  background: linear-gradient(
+    90deg,
+    rgba(30, 144, 255, 1) 0%,
+    rgba(0, 212, 255, 1) 100%
+  );
+}
