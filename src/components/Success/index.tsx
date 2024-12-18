@@ -31,7 +31,7 @@ const Success = ({ url, handleDownload,handleClose }: SuccessProps) => {
         <path fill="#4CAF50" d="M0 0h48v48H0z" mask="url(#ipTSuccess0)" />
       </svg>
       <p className={styles.desc}>
-        页面已保存至侯某电脑的svn文件夹，
+        页面已保存到对应站点的svn文件夹，
         <br /> 上线前请点击
         <a href={url} target="_blank">
           {url}

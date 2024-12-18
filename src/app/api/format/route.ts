@@ -6,42 +6,64 @@ export async function POST(req: Request) {
         const body = await req.json();
         const { htmlStr } = body
         const $ = cheerio.load(htmlStr);
-        const lang = $('html').attr('lang')
-        const title = $('title').text();
+        const lang = $('html').attr('lang').trim()
+        const title = $('title').text().trim();
         const description = $('meta[name="description"]').attr('content');
         const keywords = $('meta[name="keywords"]').attr('content');
         const canonical = $('link[rel="canonical"]').attr('href');
         const scripts = $('body').find('script');
         const noScript = $('body').find('noscript').html() || '';
-        const scriptStr: string[] = []
-        const domain = getDomainName(canonical);
-        const resourcePrefix = getCheckUrl(domain);
-        const cssFiles = convertParamsToData($, resourcePrefix)
-        scripts.each((i: any, el: any) => {
-            const scriptContent = $.html(el);
-            scriptStr.push(scriptContent)
-        });
         $('noscript').remove();
 
-        const headStr = $("head").html()
-        const bodyStr = $('body').html()
-        const htmlStrObj = {
-            headContnent: {
-                lang,
-                title,
-                description,
-                keywords,
-                canonical,
-
-            },
-            headStr: headStr,
-            bodyStr: bodyStr,
-            cssFiles: cssFiles,
-            scriptStr: scriptStr,
-            noScript: noScript
+        let pageType = null;//1:webpage;2:email;
+        let htmlStrObj = {}
+        if (title && canonical && keywords) {
+            pageType = 1
+        } else {
+            pageType = 2
         }
+        if (pageType === 1) {
+            const scriptStr: string[] = []
+            const domain = getDomainName(canonical);
+            const resourcePrefix = getCheckUrl(domain);
 
+            
+            const cssFiles = convertParamsToData($, resourcePrefix)
+            scripts.each((i: any, el: any) => {
+                const scriptContent = $.html(el);
+                scriptStr.push(scriptContent)
+            });
+            const headStr = $("head").html()
+            const bodyStr = $('body').html()
+            htmlStrObj = {
+                pageType,
+                headContnent: {
+                    lang,
+                    title,
+                    description,
+                    keywords,
+                    canonical,
 
+                },
+                headStr: headStr,
+                bodyStr: bodyStr,
+                cssFiles: cssFiles,
+                scriptStr: scriptStr,
+                noScript: noScript
+            }
+        } else {
+            const headStr = $("head").html()
+            const bodyStr = $('body').html()
+            htmlStrObj = {
+                pageType,
+                headContnent: {
+                    lang,
+                    title,
+                },
+                headStr: headStr,
+                bodyStr: bodyStr,
+            }
+        }
         return new Response(JSON.stringify(htmlStrObj), {
             status: 200,
             headers: { 'Content-Type': 'application/json' },

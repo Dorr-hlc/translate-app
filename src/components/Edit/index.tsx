@@ -1,17 +1,77 @@
 import { useEffect, useRef, useState } from "react";
 import "grapesjs/dist/css/grapes.min.css";
 import grapesjs, { Editor } from "grapesjs";
-import plugin from "grapesjs-preset-webpage";
+import emailPlugin from "grapesjs-preset-newsletter";
+import normalPlugin from "grapesjs-preset-webpage";
 import zh from "grapesjs/locale/zh";
-import { checkAndAppendCss } from "@/utils/utils";
 import { useRouter } from "next/navigation";
 interface EmailEditorProps {
   cssFiles: string[];
   bodyStr: string;
+  pageType: number;
   getCurrentHtml: (bodyHtml: string) => void;
   save: boolean;
   openErrorPop: (isResource: boolean) => void;
 }
+
+const extendAllComponents = (editor: any) => {
+  const domComponents = editor.DomComponents;
+  domComponents.getTypes().forEach((type: any) => {
+    const defaultModel = domComponents.getType(type.id).model;
+
+    domComponents.addType(type.id, {
+      model: defaultModel.extend({
+        init() {
+          this.listenTo(
+            this,
+            "change:attributes:data-expires",
+            this.updateTraits
+          );
+          this.listenTo(
+            this,
+            "change:attributes:data-avpro",
+            this.updateTraits
+          );
+          this.updateTraits();
+        },
+
+        // 动态更新 traits
+        updateTraits() {
+          const hasDataExpires = !!this.getAttributes()["data-expires"];
+          const hasDataAvpro = !!this.getAttributes()["data-avpro"];
+          const existingTraits = this.get("traits") || [];
+
+          const hasDataExpiresTrait = existingTraits.some(
+            (trait: any) => trait.name === "data-expires"
+          );
+          const hasDataAvproTrait = existingTraits.some(
+            (trait: any) => trait.name === "data-avpro"
+          );
+
+          const updatedTraits = [...existingTraits];
+
+          if (hasDataExpires && !hasDataExpiresTrait) {
+            updatedTraits.push({
+              type: "text",
+              label: "Expires",
+              name: "data-expires",
+            });
+          }
+
+          if (hasDataAvpro && !hasDataAvproTrait) {
+            updatedTraits.push({
+              type: "text",
+              label: "AV自定义链接",
+              name: "data-avpro",
+            });
+          }
+
+          this.set({ traits: updatedTraits });
+        },
+      }),
+    });
+  });
+};
 
 const extendLinkComponent = (editor: any) => {
   const domComponents = editor.DomComponents;
@@ -19,13 +79,10 @@ const extendLinkComponent = (editor: any) => {
   domComponents.addType("link", {
     model: {
       defaults: {
-        // 默认属性
         attributes: {
           href: "#",
           target: "_self",
-          "data-avpro": "",
         },
-        // 自定义属性面板
         traits: [
           {
             type: "text",
@@ -39,14 +96,7 @@ const extendLinkComponent = (editor: any) => {
             options: [
               { value: "_self", name: "Self" },
               { value: "_blank", name: "Blank" },
-              { value: "_parent", name: "Parent" },
-              { value: "_top", name: "Top" },
             ],
-          },
-          {
-            type: "text",
-            label: "Data AVPro",
-            name: "data-avpro",
           },
         ],
       },
@@ -81,6 +131,7 @@ const extendImgComponent = (editor: any) => {
 };
 
 const EmailEditor = ({
+  pageType,
   cssFiles,
   bodyStr,
   getCurrentHtml,
@@ -112,18 +163,36 @@ const EmailEditor = ({
     });
   };
 
-  // 修改页面中元素的 display 样式
   function modifyElements(editor: Editor) {
     const canvasBody = editor.Canvas.getDocument().body;
     canvasBody.classList = "isEdit";
   }
 
   const updateChange = (editor: Editor) => {
-    const updatedHtml = editor.getHtml();
+    let updatedHtml = null;
+    if (pageType === 1) {
+      updatedHtml = editor.getHtml();
+    } else {
+      updatedHtml = editor.Commands.run("gjs-get-inlined-html");  
+    }
     getCurrentHtml(updatedHtml);
   };
 
   useEffect(() => {
+    let plugin = null;
+    let pluginsOpts = null;
+
+    if (pageType === 1) {
+      plugin = normalPlugin;
+      pluginsOpts = {
+        modalImportTitle: "导入",
+        modalImportButton: "导入",
+        textCleanCanvas: "清除所有内容？",
+      };
+    } else {
+      plugin = emailPlugin;
+      pluginsOpts = {};
+    }
     const editor = grapesjs.init({
       container: "#gjs",
       fromElement: true,
@@ -136,13 +205,15 @@ const EmailEditor = ({
         autoload: true,
         stepsBeforeSave: 1,
       },
-      plugins: [plugin],
+      plugins: [
+        plugin,
+        extendAllComponents,
+        extendImgComponent,
+        extendLinkComponent,
+        resetEditor,
+      ],
       pluginsOpts: {
-        [plugin as any]: {
-          modalImportTitle: "导入",
-          modalImportButton: "导入",
-          textCleanCanvas: "清除所有内容？",
-        },
+        [plugin as any]: pluginsOpts,
       },
 
       i18n: {
@@ -155,10 +226,6 @@ const EmailEditor = ({
         styles: cssFiles,
       },
     });
-
-    extendImgComponent(editor);
-    extendLinkComponent(editor)
-    resetEditor(editor);
 
     editor.addComponents(bodyStr);
 

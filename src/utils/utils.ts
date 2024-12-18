@@ -79,6 +79,8 @@ export const firstLevelDirectory = (name: string) => {
             return "I:\\AOMEI\\AV\\v1.0";
         case "pajp":
             return "I:\\AOMEI\\PAJP\\v1.0";
+        case "ft":
+            return "I:\\AOMEI\\FT\\v1.0";
         default:
             return "";
     }

@@ -14,9 +14,15 @@ interface FormProps {
   headContent: HeadContent | null;
   handleClose?: () => void;
   handleSubmit?: (data: HeadContent) => void;
+  pageType: number;
 }
 
-const Form = ({ headContent, handleClose, handleSubmit }: FormProps) => {
+const Form = ({
+  headContent,
+  handleClose,
+  handleSubmit,
+  pageType,
+}: FormProps) => {
   const [formData, setFormData] = useState<HeadContent>(() => {
     if (headContent) {
       return headContent;
@@ -36,32 +42,73 @@ const Form = ({ headContent, handleClose, handleSubmit }: FormProps) => {
 
   const onFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    if (!isValidURL(formData.canonical)) {
-      alert("请输入正确的canonical链接");
-      return;
+    if (pageType === 1) {
+      if (!isValidURL(formData.canonical)) {
+        alert("请输入正确的canonical链接");
+        return;
+      }
     }
+
     handleSubmit?.(formData);
   };
-
+  let tdkInfo = [
+    {
+      id: "title_field",
+      label: "Title",
+      key: "title",
+      placeholder: "请输入标题",
+    },
+    {
+      id: "description_field",
+      label: "Description",
+      key: "description",
+      placeholder: "请输入描述信息",
+    },
+    {
+      id: "keywords_field",
+      label: "KeyWords",
+      key: "keywords",
+      placeholder: "请输入关键词",
+    },
+  ];
+  let langAndContent = [
+    {
+      id: "lang_field",
+      label: "Language",
+      key: "lang",
+      placeholder: "请输入语言",
+    },
+    {
+      id: "canonical_field",
+      label: "Canonical",
+      key: "canonical",
+      placeholder: "请输入页面的canonical",
+    },
+  ];
+  if (pageType === 2) {
+    tdkInfo = [
+      {
+        id: "title_field",
+        label: "Title",
+        key: "title",
+        placeholder: "请输入标题",
+      },
+    ];
+    langAndContent = [
+      {
+        id: "lang_field",
+        label: "Language",
+        key: "lang",
+        placeholder: "请输入语言",
+      },
+    ];
+  }
   return (
     <form className={styles.form_container} onSubmit={onFormSubmit}>
       <div className={styles.title_container}>
         <p className={styles.title}>翻译TDK相关</p>
       </div>
-      {[
-        {
-          id: "lang_field",
-          label: "Lang",
-          key: "lang",
-          placeholder: "请输入当前翻译语言的缩写",
-        },
-        {
-          id: "canonical_field",
-          label: "Canonical",
-          key: "canonical",
-          placeholder: "请输入页面的canonical",
-        },
-      ].map(({ id, label, key, placeholder }) => (
+      {langAndContent.map(({ id, label, key, placeholder }) => (
         <div className={styles.input_container} key={id}>
           <label className={styles.input_label} htmlFor={id}>
             {label}
@@ -78,26 +125,7 @@ const Form = ({ headContent, handleClose, handleSubmit }: FormProps) => {
           />
         </div>
       ))}
-      {[
-        {
-          id: "title_field",
-          label: "Title",
-          key: "title",
-          placeholder: "请输入标题",
-        },
-        {
-          id: "description_field",
-          label: "Description",
-          key: "description",
-          placeholder: "请输入描述信息",
-        },
-        {
-          id: "keywords_field",
-          label: "KeyWords",
-          key: "keywords",
-          placeholder: "请输入关键词",
-        },
-      ].map(({ id, label, key, placeholder }) => (
+      {tdkInfo.map(({ id, label, key, placeholder }) => (
         <div className={styles.input_container} key={id}>
           <label className={styles.input_label} htmlFor={id}>
             {label}

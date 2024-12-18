@@ -20,6 +20,7 @@ interface HeadContent {
 const Edit = () => {
   const [isOpenMask, setIsOpenMask] = useState(false);
   const [parsedHtml, setParsedHtml] = useState<any>(null);
+  const [pageType, setPageType] = useState(1);
   const [headContentStr, setHeadContentStr] = useState<HeadContent | null>(
     null
   );
@@ -33,6 +34,7 @@ const Edit = () => {
     const html = window.localStorage.getItem("html");
     if (html) {
       const parsed = JSON.parse(html);
+      setPageType(parsed.pageType);
       setParsedHtml(parsed);
       setHeadContentStr(parsed.headContnent);
     }
@@ -50,17 +52,28 @@ const Edit = () => {
   const handleOpen = () => setIsOpenMask(true);
   const handleDownloadClick = () => setSave(true);
 
-  const handleDown = (bodyStr?: string) => {
-    const reqBody = {
-      head: headContentStr,
-      body: bodyStr,
-      headStr: parsedHtml?.headStr,
-      cssFiles: parsedHtml?.cssFiles,
-      scriptStr: parsedHtml?.scriptStr,
-      noScript: parsedHtml?.noScript,
-    };
+  const handleDown = async (bodyStr?: string) => {
+    let reqBody = null;
+    if (pageType === 1) {
+      reqBody = {
+        head: headContentStr,
+        body: bodyStr,
+        headStr: parsedHtml?.headStr,
+        cssFiles: parsedHtml?.cssFiles,
+        scriptStr: parsedHtml?.scriptStr,
+        noScript: parsedHtml?.noScript,
+        pageType: pageType,
+      };
+    } else {
+      reqBody = {
+        head: headContentStr,
+        body: bodyStr,
+        headStr: parsedHtml?.headStr,
+        pageType: pageType,
+      };
+    }
 
-    fetch("/api/download", {
+    await fetch("/api/download", {
       body: JSON.stringify(reqBody),
       method: "POST",
       headers: {
@@ -73,13 +86,19 @@ const Edit = () => {
       })
       .then((data) => {
         const { html, fileName, checkUrl } = data;
+
         if (!html) throw new Error("No HTML content received.");
         const blob = new Blob([html], { type: "text/html" });
         setFileName(fileName);
         setBlob(blob);
         setCheckUrl(checkUrl);
         setSave(false);
-        setOpenSucces(true);
+
+        if (pageType === 1) {
+          setOpenSucces(true);
+        } else {
+          downloadHtmls(new Blob([html], { type: "text/html" }), fileName);
+        }
       })
       .catch((error) => console.error("Error during download:", error.message));
   };
@@ -98,6 +117,7 @@ const Edit = () => {
       {isOpenMask && headContentStr && (
         <Mask>
           <Form
+            pageType={pageType}
             handleClose={handleClose}
             handleSubmit={handleSubmit}
             headContent={headContentStr}
@@ -121,6 +141,7 @@ const Edit = () => {
 
       {parsedHtml && (
         <EditPage
+          pageType={parsedHtml.pageType}
           cssFiles={parsedHtml.cssFiles}
           bodyStr={parsedHtml.bodyStr}
           getCurrentHtml={handleDown}
@@ -132,7 +153,11 @@ const Edit = () => {
         TDK
       </button>
 
-      <button className="comic-button comic-down" onClick={handleDownloadClick}>
+      <button
+        className="comic-button comic-down"
+        id="download"
+        onClick={handleDownloadClick}
+      >
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="24"
