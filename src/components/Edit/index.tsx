@@ -112,15 +112,20 @@ const extendImgComponent = (editor: any) => {
         traits: [
           {
             type: "number",
-            label: "宽度",
+            label: "width",
             name: "width",
             placeholder: "例如: 100px",
           },
           {
             type: "number",
-            label: "高度",
+            label: "height",
             name: "height",
             placeholder: "例如: 100px",
+          },
+          {
+            type: "text",
+            label: "src",
+            name: "src",
           },
           ...editor.DomComponents.getType("image").model.prototype.defaults
             .traits,
