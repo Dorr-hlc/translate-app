@@ -14,9 +14,19 @@
     "grapesjs": "^0.22.4",
     "grapesjs-preset-newsletter": "^1.0.2",
     "grapesjs-preset-webpage": "^1.0.3",
+    "highlight.js": "^11.11.0",
+    "install": "^0.13.0",
     "next": "15.0.1",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-markdown": "^9.0.1",
+    "react-syntax-highlighter": "^15.6.1",
+    "rehype-autolink-headings": "^7.1.0",
+    "rehype-highlight": "^7.0.1",
+    "rehype-slug": "^6.0.0",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.0",
+    "remark-html": "^16.0.1"
   },
   "devDependencies": {
     "@types/file-saver": "^2.0.7",
