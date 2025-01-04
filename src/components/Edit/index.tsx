@@ -3,12 +3,14 @@ import "grapesjs/dist/css/grapes.min.css";
 import grapesjs, { Editor } from "grapesjs";
 import emailPlugin from "grapesjs-preset-newsletter";
 import normalPlugin from "grapesjs-preset-webpage";
+
 import zh from "grapesjs/locale/zh";
 import { useRouter } from "next/navigation";
 interface EmailEditorProps {
   cssFiles: string[];
   bodyStr: string;
   pageType: number;
+
   getCurrentHtml: (bodyHtml: string) => void;
   save: boolean;
   openErrorPop: (isResource: boolean) => void;
@@ -178,7 +180,7 @@ const EmailEditor = ({
     if (pageType === 1) {
       updatedHtml = editor.getHtml();
     } else {
-      updatedHtml = editor.Commands.run("gjs-get-inlined-html");  
+      updatedHtml = editor.Commands.run("gjs-get-inlined-html");
     }
     getCurrentHtml(updatedHtml);
   };
@@ -219,6 +221,7 @@ const EmailEditor = ({
       ],
       pluginsOpts: {
         [plugin as any]: pluginsOpts,
+        gradientPlugin: {},
       },
 
       i18n: {
@@ -233,7 +236,15 @@ const EmailEditor = ({
     });
 
     editor.addComponents(bodyStr);
-
+    editor.StyleManager.addProperty("decorations", {
+      name: "background-gradient",
+      label: "Gradient Background",
+      property: "background",
+      type: "text", // 使用 text 类型，允许直接输入字符串
+      defaults:
+        "linear-gradient(90deg, #9A0C09 0%, #FF2007 100%, #FF8F1F 100%)",
+      placeholder: "Enter gradient (e.g., linear-gradient(90deg, #fff, #000))",
+    });
     editorRef.current = editor;
 
     return () => {

@@ -21,6 +21,7 @@ declare module 'grapesjs' {
         getSelected: () => any;
         select: (component: any) => void;
         DomComponents: any;
+        StyleManager: any;
     };
 
     const grapesjs: {
