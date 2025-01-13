@@ -18,6 +18,7 @@ interface EmailEditorProps {
 
 const extendAllComponents = (editor: any) => {
   const domComponents = editor.DomComponents;
+
   domComponents.getTypes().forEach((type: any) => {
     const defaultModel = domComponents.getType(type.id).model;
 
@@ -34,13 +35,21 @@ const extendAllComponents = (editor: any) => {
             "change:attributes:data-avpro",
             this.updateTraits
           );
+          this.listenTo(
+            this,
+            "change:attributes:value",
+            this.updateTraits
+          );
           this.updateTraits();
         },
 
         // 动态更新 traits
         updateTraits() {
-          const hasDataExpires = !!this.getAttributes()["data-expires"];
-          const hasDataAvpro = !!this.getAttributes()["data-avpro"];
+          const attributes = this.getAttributes();
+          const hasDataExpires = !!attributes["data-expires"];
+          const hasDataAvpro = !!attributes["data-avpro"];
+          const hasValue = attributes.hasOwnProperty("value");
+
           const existingTraits = this.get("traits") || [];
 
           const hasDataExpiresTrait = existingTraits.some(
@@ -48,6 +57,9 @@ const extendAllComponents = (editor: any) => {
           );
           const hasDataAvproTrait = existingTraits.some(
             (trait: any) => trait.name === "data-avpro"
+          );
+          const hasValueTrait = existingTraits.some(
+            (trait: any) => trait.name === "value"
           );
 
           const updatedTraits = [...existingTraits];
@@ -68,12 +80,21 @@ const extendAllComponents = (editor: any) => {
             });
           }
 
+          if (hasValue && !hasValueTrait) {
+            updatedTraits.push({
+              type: "text",
+              label: "Value",
+              name: "value",
+            });
+          }
+
           this.set({ traits: updatedTraits });
         },
       }),
     });
   });
 };
+
 
 const extendLinkComponent = (editor: any) => {
   const domComponents = editor.DomComponents;

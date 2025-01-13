@@ -84,6 +84,17 @@ export const firstLevelDirectory = (name: string) => {
             return "";
     }
 }
+export const baseLangDirectoryPath = (domain: string, lang: string) => {
+    const baseDirectory = firstLevelDirectory(domain);
+    let langStr = ""
+    if (lang === 'en') {
+        langStr = ""
+    } else {
+        langStr = lang
+    }
+
+    return path.join(baseDirectory, langStr);
+}
 
 
 export const directoryPath = (str: string, domain: string) => {
@@ -190,16 +201,31 @@ export const convertParamsToData = ($: any, resourcePrefix: string) => {
             cssFiles.push(href);
         }
     });
-    $('[onclick]').each(function (i: any, element: any) {
+    $('[onclick]').each((_: any, element: HTMLElement) => {
         const $this = $(element);
         const onclickValue = $this.attr('onclick');
-        const gaMatch = onclickValue && onclickValue.match(/ga\([^,]+,[^,]+,(.*)\)/);
-        if (gaMatch && gaMatch[1]) {
+
+        // 匹配 ga() 和 gtag() 的不同格式
+        const gaMatch = onclickValue?.match(/ga\([^,]+,[^,]+,(.*)\)/);
+        const gtagMatch = onclickValue?.match(/gtag\('event',\s*'([^']+)',\s*{.*'event_category':\s*'([^']+)',.*'event_label':\s*'([^']+)'/);
+
+        if (gaMatch?.[1]) {
+            // 处理 ga() 格式
             const gaParams = gaMatch[1].trim();
             $this.attr('data-ga', gaParams);
             $this.removeAttr('onclick');
+        } else if (gtagMatch) {
+            // 处理 gtag() 格式
+            const eventCategory = gtagMatch[2].trim();
+            const eventAction = gtagMatch[1].trim();
+            const eventLabel = gtagMatch[3].trim();
+
+            const dataGaValue = `'${eventCategory}', '${eventAction}', '${eventLabel}'`;
+            $this.attr('data-ga', dataGaValue);
+            $this.removeAttr('onclick');
         }
     });
+
     return cssFiles
 }
 

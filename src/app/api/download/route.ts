@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 const cheerio = require('cheerio');
-import { getDomainName, getCheckUrl, directoryPath, convertDataGaToOnclick, replaceUrlWithPathname } from "@/utils/utils"
+import { getDomainName, getCheckUrl, directoryPath, convertDataGaToOnclick, replaceUrlWithPathname, baseLangDirectoryPath } from "@/utils/utils"
 
 export async function POST(req: Request) {
     try {
@@ -40,6 +40,37 @@ export async function POST(req: Request) {
 
                 if (domain) {
                     const filePathName = directoryPath(canonical, domain);
+                    const baseLangDirectory = baseLangDirectoryPath(domain, lang)
+                    // 定义 index.html 文件路径
+                    const indexFilePath = path.join(baseLangDirectory, 'index.html');
+                    let header = '';
+                    let footer = '';
+                    // 尝试读取 index.html 的内容
+                    if (fs.existsSync(indexFilePath)) {
+                        try {
+                            const indexHtml = fs.readFileSync(indexFilePath, 'utf-8');
+                            const $index = cheerio.load(indexHtml);
+
+                            // 提取 header 和 footer 内容
+                            header = $index('header').html() || '';
+                            footer = $index('footer').html() || '';
+                        } catch (err) {
+                            console.error(`读取 ${indexFilePath} 时发生错误:`, err);
+                        }
+                    } else {
+                        console.warn(`未找到 index.html 文件: ${indexFilePath}`);
+                    }
+
+                    // 插入提取的 header 和 footer
+                    if (header) {
+                        $('header').html(header);
+                    }
+                    if (footer) {
+                        $('footer').html(footer);
+                    }
+                    $('.time_input').each(function (i: any, el: any) {
+                        $(el).attr('type', 'hidden').removeClass('time_input');
+                    });
                     convertDataGaToOnclick($, pathname)
                     replaceUrlWithPathname($)
                     html = $.html();

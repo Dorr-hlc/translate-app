@@ -13,8 +13,12 @@ export async function POST(req: Request) {
         const canonical = $('link[rel="canonical"]').attr('href');
         const scripts = $('body').find('script');
         const noScript = $('body').find('noscript').html() || '';
+        $("header").html('');
         $('noscript').remove();
-
+        $("footer").html('')
+        $('input[type="hidden"]').each(function (i: any, el: any) {
+            $(el).attr('type', 'text').addClass('time_input');
+        });
         let pageType = null;//1:webpage;2:email;
         let htmlStrObj = {}
         if (title && canonical && keywords) {
@@ -27,7 +31,7 @@ export async function POST(req: Request) {
             const domain = getDomainName(canonical);
             const resourcePrefix = getCheckUrl(domain);
 
-            
+
             const cssFiles = convertParamsToData($, resourcePrefix)
             scripts.each((i: any, el: any) => {
                 const scriptContent = $.html(el);
