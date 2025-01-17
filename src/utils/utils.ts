@@ -1,6 +1,7 @@
 import { saveAs } from "file-saver";
 const path = require('path');  // 引入 path 模块
 
+
 interface DownloadHtmlProps {
     blob: Blob;
     fileName: string;
@@ -262,6 +263,70 @@ export const replaceUrlWithPathname = ($: any): void => {
         if (url && url.startsWith('http://192.168')) {
             const newPath = new URL(url).pathname;
             $(element).attr(attrName, newPath);
+        }
+    });
+};
+
+
+export const commitSvn = (exec: any, filePath: string) => {
+    // 检查文件状态
+    exec(`svn status I:\\AOMEI\\FT\\v1.0\\`, { encoding: 'utf8' }, (err: any, stdout: any, stderr: any) => {
+        if (err) {
+            console.error('Error during svn status:', stderr);
+            return;
+        }
+
+        // 判断文件状态
+        const status = stdout.trim();
+        console.log(status, 1111);
+
+        if (!status) {
+            console.log(`No changes detected for file: ${filePath}`);
+            return;
+        }
+
+        // 文件状态可能为: 'M' (已修改), '?' (未添加), 'C' (冲突), 等
+        const statusCode = status[0];
+        if(statusCode){
+            exec(`svn commit -m "Commit ${filePath}" ${filePath}`, (commitErr: any, commitStdout: any, commitStderr: any) => {
+                if (commitErr) {
+                    console.error('Error during svn commit:', commitStderr);
+                    return;
+                }
+                console.log('文件已提交svn:', commitStdout);
+            });
+        }
+        if (['M'].includes(statusCode)) {
+            // 提交文件
+            exec(`svn commit -m "Commit ${filePath}" ${filePath}`, (commitErr: any, commitStdout: any, commitStderr: any) => {
+                if (commitErr) {
+                    console.error('Error during svn commit:', commitStderr);
+                    return;
+                }
+                console.log('文件已提交svn:', commitStdout);
+            });
+        }
+
+
+        if (['?'].includes(statusCode)) {
+            exec(`svn add ${filePath}`, { encoding: 'utf8' }, (addErr: any, addStdout: any, addStderr: any) => {
+                if (addErr) {
+                    console.error('Error during svn add:', addStderr);
+                    return;
+                }
+
+                console.log('Add Result:', addStdout);
+
+                // 提交文件
+                exec(`svn commit -m "Commit ${filePath}" ${filePath}`, (commitErr: any, commitStdout: any, commitStderr: any) => {
+                    if (commitErr) {
+                        console.error('Error during svn commit:', commitStderr);
+                        return;
+                    }
+                    console.log('文件已提交svn:', commitStdout);
+                });
+            });
+
         }
     });
 };
