@@ -30,8 +30,6 @@ export async function POST(req: Request) {
             const scriptStr: string[] = []
             const domain = getDomainName(canonical);
             const resourcePrefix = getCheckUrl(domain);
-
-
             const cssFiles = convertParamsToData($, resourcePrefix)
             scripts.each((i: any, el: any) => {
                 const scriptContent = $.html(el);

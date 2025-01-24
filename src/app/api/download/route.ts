@@ -55,7 +55,7 @@ export async function POST(req: Request) {
         const { head, headStr, body, noScript, pageType } = reqBody
         const { title, lang, description, keywords, canonical } = head
         const doctype = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//${lang.toUpperCase()}" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">`;
-        let defaultHtml = generateDoctype(pageType, lang)
+        const defaultHtml = generateDoctype(pageType, lang)
         const $ = cheerio.load(defaultHtml);
         $("head").append(headStr)
         $("noscript").html(noScript);
